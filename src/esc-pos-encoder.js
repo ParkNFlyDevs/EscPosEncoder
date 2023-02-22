@@ -1,8 +1,8 @@
 const iconv = require('iconv-lite');
 const linewrap = require('linewrap');
-const {createCanvas} = require('canvas');
+/*const { createCanvas } = require('canvas');
 const Dither = require('canvas-dither');
-const Flatten = require('canvas-flatten');
+const Flatten = require('canvas-flatten');*/
 
 
 /**
@@ -51,7 +51,11 @@ class EscPosEncoder {
      *
     */
     _queue(value) {
-        value.forEach((item) => this._buffer.push(item));
+        console.log(value)
+        if (typeof value[0] == 'string')
+            this._buffer.push(value[0])
+        else
+            value.forEach((item) => this._buffer.push(item));
     }
 
     /**
@@ -150,7 +154,7 @@ class EscPosEncoder {
      */
     text(value, wrap) {
         if (wrap) {
-            let w = linewrap(wrap, {lineBreak: '\r\n'});
+            let w = linewrap(wrap, { lineBreak: '\r\n' });
             value = w(value);
         }
 
@@ -207,7 +211,7 @@ class EscPosEncoder {
      */
     underline(value) {
         if (typeof value === 'undefined') {
-            value = ! this._state.underline;
+            value = !this._state.underline;
         }
 
         this._state.underline = value;
@@ -228,7 +232,7 @@ class EscPosEncoder {
      */
     italic(value) {
         if (typeof value === 'undefined') {
-            value = ! this._state.italic;
+            value = !this._state.italic;
         }
 
         this._state.italic = value;
@@ -249,7 +253,7 @@ class EscPosEncoder {
      */
     bold(value) {
         if (typeof value === 'undefined') {
-            value = ! this._state.bold;
+            value = !this._state.bold;
         }
 
         this._state.bold = value;
@@ -261,13 +265,13 @@ class EscPosEncoder {
         return this;
     }
 
-   /**
-     * Change text size
-     *
-     * @param  {string}          value   small or normal
-     * @return {object}                  Return the object, for easy chaining commands
-     *
-     */
+    /**
+      * Change text size
+      *
+      * @param  {string}          value   small or normal
+      * @return {object}                  Return the object, for easy chaining commands
+      *
+      */
     size(value) {
         if (value === 'small') {
             value = 0x01;
@@ -282,13 +286,13 @@ class EscPosEncoder {
         return this;
     }
 
-   /**
-     * Change text alignment
-     *
-     * @param  {string}          value   left, center or right
-     * @return {object}                  Return the object, for easy chaining commands
-     *
-     */
+    /**
+      * Change text alignment
+      *
+      * @param  {string}          value   left, center or right
+      * @return {object}                  Return the object, for easy chaining commands
+      *
+      */
     align(value) {
         const alignments = {
             'left': 0x00,
@@ -447,7 +451,7 @@ class EscPosEncoder {
      * @param  {number}         threshold  threshold for the dithering algorithm
      * @return {object}                  Return the object, for easy chaining commands
      *
-     */
+     
     image(element, width, height, algorithm, threshold) {
         if (width % 8 !== 0) {
             throw new Error('Width must be a multiple of 8');
@@ -506,7 +510,7 @@ class EscPosEncoder {
         ]);
 
         return this;
-    }
+    }*/
 
     /**
      * Cut paper
@@ -579,6 +583,7 @@ class EscPosEncoder {
         let length = 0;
 
         this._buffer.forEach((item) => {
+            console.log('item', item)
             if (typeof item === 'number') {
                 length++;
             } else {
@@ -586,7 +591,7 @@ class EscPosEncoder {
             }
         });
 
-        let result = new Uint8Array(length);
+        let result = [];
 
         let index = 0;
 
@@ -595,7 +600,12 @@ class EscPosEncoder {
                 result[index] = item;
                 index++;
             } else {
-                result.set(item, index);
+                console.log(item)
+                if (typeof item == 'string')
+                    result[index] = item
+                else
+                    result.splice(index, 0, ...JSON.parse(JSON.stringify(item)).data);
+
                 index += item.length;
             }
         });
